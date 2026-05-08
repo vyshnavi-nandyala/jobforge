@@ -45,11 +45,19 @@ export default function JobDetailsModal({ job, onClose, onApplied }: Props) {
     // Open immediately on user gesture — browsers block window.open after an await
     window.open(job.sourceUrl, '_blank', 'noopener');
     setApplying(true);
+    onClose();
     try {
-      await applicationsApi.create(job.id);
-      toast.success('Application tracked!');
+      // Track application and customize resume concurrently in the background
+      const [, customized] = await Promise.allSettled([
+        applicationsApi.create(job.id),
+        !resume ? resumeApi.customize(job.id) : Promise.resolve(null),
+      ]);
+      if (!resume && customized.status === 'fulfilled' && customized.value) {
+        toast.success('Resume auto-customized for this job — check Resume Manager to download.');
+      } else {
+        toast.success('Application tracked!');
+      }
       onApplied();
-      onClose();
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Failed to track';
       if (!msg.includes('Already applied')) toast.error(msg);
