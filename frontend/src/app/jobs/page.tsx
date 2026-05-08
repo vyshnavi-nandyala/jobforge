@@ -60,18 +60,28 @@ export default function JobsPage() {
     <div className="flex min-h-screen">
       <Sidebar />
       <main className="ml-56 flex-1 p-6">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-5">
           <div>
             <h1 className="text-xl font-bold text-slate-100">Job Matches</h1>
-            <p className="text-sm text-slate-500 mt-0.5">{total} Data Engineer roles found</p>
+            <div className="flex items-center gap-3 mt-1">
+              <span className="text-sm text-slate-500">{total} Data Engineer roles</span>
+              {total > 0 && (
+                <>
+                  <span className="text-slate-700">·</span>
+                  <span className="text-xs text-emerald-500">{jobs.filter(j => j.matchedScore >= 0.85).length} excellent matches</span>
+                  <span className="text-slate-700">·</span>
+                  <span className="text-xs text-teal-500">{jobs.filter(j => j.remote).length} remote</span>
+                </>
+              )}
+            </div>
           </div>
-          <button onClick={handleSearch} disabled={searching} className="btn-primary flex items-center gap-2 text-sm">
+          <button onClick={handleSearch} disabled={searching} className="flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white transition-all duration-150 shadow-lg shadow-violet-900/30 disabled:opacity-50">
             {searching ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
             {searching ? 'Searching...' : 'Search Now'}
           </button>
         </div>
 
-        <div className="card p-4 mb-5">
+        <div className="bg-[#0d1117] border border-[#1f2937] rounded-2xl p-4 mb-5">
           <JobFilters filters={filters} onChange={f => setFilters(p => ({ ...p, ...f }))} onClear={() => setFilters({})} />
         </div>
 
