@@ -42,20 +42,17 @@ export default function JobDetailsModal({ job, onClose, onApplied }: Props) {
   };
 
   const handleApply = async () => {
+    // Open immediately on user gesture — browsers block window.open after an await
+    window.open(job.sourceUrl, '_blank', 'noopener');
     setApplying(true);
     try {
       await applicationsApi.create(job.id);
-      window.open(job.sourceUrl, '_blank', 'noopener');
       toast.success('Application tracked!');
       onApplied();
       onClose();
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Failed to track';
-      if (msg.includes('Already applied')) {
-        window.open(job.sourceUrl, '_blank', 'noopener');
-      } else {
-        toast.error(msg);
-      }
+      if (!msg.includes('Already applied')) toast.error(msg);
     } finally {
       setApplying(false);
     }
